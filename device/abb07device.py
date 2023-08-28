@@ -98,7 +98,9 @@ class abb07_device():
                 {"name":"rt", "value":0},
                 {"name":"vtrgt", "value":0},
                 {"name":"vfloat", "value":0},
-                {"name":"vboost", "value":0}
+                {"name":"vboost", "value":0},
+                {"name":"devicerunning", "value":0},
+                {"name":"deviceuptime", "value":0}
             ] }
         self._sensordata = json.dumps(dataobject)
 
@@ -147,6 +149,8 @@ class abb07_device():
                         devm = int.from_bytes(self._rawdata[35:36], byteorder='big')
                         devs = int.from_bytes(self._rawdata[36:37], byteorder='big')
                         devms = int.from_bytes(self._rawdata[37:39], byteorder='big')
+                        devicerunning = (rund * 86400) + (runh * 3600) + (runm * 60) + runs
+                        deviceuptime = (devh * 3600) + (devm * 60) + devs
                         dataobject = {
                             "sensors": [
                                 {"name":"liv", "value":liv},
@@ -159,7 +163,9 @@ class abb07_device():
                                 {"name":"rt", "value":rt},
                                 {"name":"vtrgt", "value":vtrgt},
                                 {"name":"vfloat", "value":vfloat},
-                                {"name":"vboost", "value":vboost}
+                                {"name":"vboost", "value":vboost},
+                                {"name":"devicerunning", "value":devicerunning},
+                                {"name":"deviceuptime", "value":deviceuptime}
                             ] }
                         self._sensordata = json.dumps(dataobject)
                         logging.debug(self.sensordata)
