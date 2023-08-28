@@ -8,6 +8,7 @@ This Python object is only for readout and has been tested on the AMT12-2 Tickle
 
 - The bleak library, can be installed with "pip install bleak"
 - Bluetooth device set to passive scanning
+- Low power mode of the ABB-07 disabled, as the wake-up call isn't implemented 
 
 # Test script
 
