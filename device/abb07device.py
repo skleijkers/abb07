@@ -2,7 +2,6 @@ from bleak import BleakClient, BleakScanner
 from bleak.backends.characteristic import BleakGATTCharacteristic
 from bleak.exc import BleakError
 import logging, asyncio, json
-from typing import Optional
 from device.constants import abb07_chars
 
 class abb07_device():
@@ -10,9 +9,14 @@ class abb07_device():
     def __init__(self):
         self._command = bytes([0xCA, 0xFD, 0x00, 0x06, 0x09, 0xD6]) # default command to request all sensor data from charger
         self._rawdata = bytearray()
-        self.sensordata = {} # json object of the sensor data
+        self._sensordata = {} # json object of the sensor data
         self.refreshrate = int(10) # default refresh sensor data every 10 seconds
  
+
+    @property
+    def sensordata(self):
+        return self._sensordata
+
 
     async def connect(self, adapter: str, addr_str: str, addr_type: str, timeout: float):
         device = await BleakScanner.find_device_by_address(addr_str, timeout=timeout, adapter=adapter)
@@ -78,25 +82,25 @@ class abb07_device():
 
 
     def handle_disconnect(self, client: BleakClient):
-        logging.info(f'Device {client.address} disconnected')
+        logging.warning(f'Device {client.address} disconnected')
 
 
     async def setup_sensor_data(self):
         dataobject = {
             "sensors": [
-                {"id":1, "name":"liv", "value":0},
-                {"id":2, "name":"riv", "value":0},
-                {"id":3, "name":"lov", "value":0},
-                {"id":4, "name":"rov", "value":0},
-                {"id":5, "name":"li", "value":0},
-                {"id":6, "name":"mt", "value":0},
-                {"id":7, "name":"ft", "value":0},
-                {"id":8, "name":"rt", "value":0},
-                {"id":9, "name":"vtrgt", "value":0},
-                {"id":10, "name":"vfloat", "value":0},
-                {"id":11, "name":"vboost", "value":0}
+                {"name":"liv", "value":0},
+                {"name":"riv", "value":0},
+                {"name":"lov", "value":0},
+                {"name":"rov", "value":0},
+                {"name":"li", "value":0},
+                {"name":"mt", "value":0},
+                {"name":"ft", "value":0},
+                {"name":"rt", "value":0},
+                {"name":"vtrgt", "value":0},
+                {"name":"vfloat", "value":0},
+                {"name":"vboost", "value":0}
             ] }
-        self.sensordata = json.dumps(dataobject)
+        self._sensordata = json.dumps(dataobject)
 
 
     async def refresh_sensor_data(self):
@@ -145,19 +149,19 @@ class abb07_device():
                         devms = int.from_bytes(self._rawdata[37:39], byteorder='big')
                         dataobject = {
                             "sensors": [
-                                {"id":1, "name":"liv", "value":liv},
-                                {"id":2, "name":"riv", "value":riv},
-                                {"id":3, "name":"lov", "value":lov},
-                                {"id":4, "name":"rov", "value":rov},
-                                {"id":5, "name":"li", "value":li},
-                                {"id":6, "name":"mt", "value":mt},
-                                {"id":7, "name":"ft", "value":ft},
-                                {"id":8, "name":"rt", "value":rt},
-                                {"id":9, "name":"vtrgt", "value":vtrgt},
-                                {"id":10, "name":"vfloat", "value":vfloat},
-                                {"id":11, "name":"vboost", "value":vboost}
+                                {"name":"liv", "value":liv},
+                                {"name":"riv", "value":riv},
+                                {"name":"lov", "value":lov},
+                                {"name":"rov", "value":rov},
+                                {"name":"li", "value":li},
+                                {"name":"mt", "value":mt},
+                                {"name":"ft", "value":ft},
+                                {"name":"rt", "value":rt},
+                                {"name":"vtrgt", "value":vtrgt},
+                                {"name":"vfloat", "value":vfloat},
+                                {"name":"vboost", "value":vboost}
                             ] }
-                        self.sensordata = json.dumps(dataobject)
+                        self._sensordata = json.dumps(dataobject)
                         logging.debug(self.sensordata)
                     else:
                         logging.error(f'Incorrect checksum')

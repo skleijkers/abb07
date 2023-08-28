@@ -14,7 +14,7 @@ async def main():
     my_abb07 = abb07_device()
     await my_abb07.connect(ADAPTER, DEVICE, "public", 10.0)
     await asyncio.sleep(5.0)
-    print(my_abb07.sensordata)
+    print(my_abb07.sensordata())
     await my_abb07.disconnect()
 
 if __name__ == "__main__":
