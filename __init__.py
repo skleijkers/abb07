@@ -7,7 +7,6 @@ from homeassistant.helpers.discovery import async_load_platform
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
-import logging
 from .device.abb07device import ABB07Device
 
 from homeassistant.const import (

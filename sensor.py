@@ -15,8 +15,6 @@ from .const import DOMAIN
 from .util import ABB07Data
 from .device.abb07device import ABB07Device
 
-import logging
-
 SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key="liv",
