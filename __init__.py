@@ -17,13 +17,11 @@ from homeassistant.const import (
 
 from .const import (
     DOMAIN,
-    CONF_ADAPTER,
 )
 
 CONFIG_SCHEMA = vol.Schema(
 	{
 		DOMAIN: vol.Schema({
-                    vol.Required(CONF_ADAPTER): cv.string,
                     vol.Required(CONF_DEVICE): cv.string,
 		})
 	},
@@ -34,13 +32,12 @@ CONFIG_SCHEMA = vol.Schema(
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     conf = config[DOMAIN]
-    adapter = conf.get(CONF_ADAPTER)
     device = conf.get(CONF_DEVICE)
 
     if DOMAIN not in config:
         return False
 
-    abb07dev = ABB07Device(adapter, device, "public", 10.0)
+    abb07dev = ABB07Device(device, 10.0)
     hass.data[DOMAIN] = abb07dev
 
     hass.async_create_task(async_load_platform(hass, Platform.SENSOR, DOMAIN, {}, config))

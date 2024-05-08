@@ -21,6 +21,5 @@ Add the following lines to the configuration.yaml of Home Assistant:
 
 ```bash
 abb07:
-  adapter: "hci0" # Bluetooth adapter name
   device: "XX:XX:XX:XX:XX:XX" # Identifier of ABB-07 bluetooth module (MAC address)
 ```

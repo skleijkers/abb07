@@ -33,7 +33,8 @@ class ABB07Data:
 
     async def _async_update(self):
         if not self._abb07dev.is_connected:
-            if not await self._abb07dev.connect(self._abb07dev.adapter, self._abb07dev.addr_str, self._abb07dev.addr_type, self._abb07dev.timeout):
+#            if not await self._abb07dev.connect(self._abb07dev.adapter, self._abb07dev.addr_str, self._abb07dev.addr_type, self._abb07dev.timeout):
+            if not await self._abb07dev.connect():
                 logging.error(f'Could not connect to ABB07')
                 return {}
 

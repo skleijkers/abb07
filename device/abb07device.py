@@ -11,31 +11,21 @@ abb07_chars = [
 
 class ABB07Device:
 
-    def __init__(self, adapter: str, addr_str: str, addr_type: str, timeout: float):
+    def __init__(self, addr_str: str, timeout: float):
         self._command = bytes([0xCA, 0xFD, 0x00, 0x06, 0x09, 0xD6]) # default command to request all sensor data from charger
         self._rawdata = bytearray()
         self._sensordata = {}
         self._is_connected = False
-        self._adapter = adapter
         self._addr_str = addr_str
-        self._addr_type = addr_type
         self._timeout = timeout
 
     @property
-    def adapter(self):
-        return self._adapter
-
-    @property
     def addr_str(self):
-        return self._addr_str
-
-    @property
-    def addr_type(self):
-        return self._addr_type
+        return str(self._addr_str)
 
     @property
     def timeout(self):
-        return self._timeout
+        return float(self._timeout)
 
     @property
     def sensordata(self):
@@ -45,13 +35,13 @@ class ABB07Device:
     def is_connected(self):
         return self._is_connected
 
-    async def connect(self, adapter: str, addr_str: str, addr_type: str, timeout: float) -> bool:
-        device = await BleakScanner().find_device_by_address(addr_str, timeout=timeout, adapter=adapter)
+    async def connect(self) -> bool:
+        device = await BleakScanner().find_device_by_address(device_identifier=self.addr_str, timeout=self.timeout)
         if not device:
             logging.eror(f'No matching device found!')
             return False
 
-        self.dev = BleakClient(device, address_type=addr_type,timeout=timeout, disconnected_callback=self.handle_disconnect)
+        self.dev = BleakClient(device, disconnected_callback=self.handle_disconnect, timeout=self.timeout)
 
         logging.debug(f'Trying to connect with {device}')
         await self.dev.connect()
