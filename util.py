@@ -38,7 +38,12 @@ class ABB07Data:
                 return {}
 
         await self._abb07dev.get_sensor_data()
-        return self._abb07dev.sensordata
+        data = self._abb07dev.sensordata
+
+        if not self._abb07dev.keep_connected and self._abb07dev.is_connected:
+            self._abb07dev.disconnect()
+
+        return data
 
     async def async_update(self, *_):
         data = await self._async_update()

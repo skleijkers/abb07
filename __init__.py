@@ -16,12 +16,14 @@ from homeassistant.const import (
 
 from .const import (
     DOMAIN,
+    CONF_KEEP_CONNECTED,
 )
 
 CONFIG_SCHEMA = vol.Schema(
 	{
 		DOMAIN: vol.Schema({
                     vol.Required(CONF_DEVICE): cv.string,
+                    vol.Optional(CONF_KEEP_CONNECTED, default=False): cv.boolean,
 		})
 	},
 	extra=vol.ALLOW_EXTRA,
@@ -32,11 +34,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     conf = config[DOMAIN]
     device = conf.get(CONF_DEVICE)
+    keep_connected = conf.get(CONF_KEEP_CONNECTED)
 
     if DOMAIN not in config:
         return False
 
-    abb07dev = ABB07Device(device, 10.0)
+    abb07dev = ABB07Device(device, 10.0, keep_connected)
     hass.data[DOMAIN] = abb07dev
 
     hass.async_create_task(async_load_platform(hass, Platform.SENSOR, DOMAIN, {}, config))

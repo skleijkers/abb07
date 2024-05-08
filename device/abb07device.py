@@ -11,13 +11,14 @@ abb07_chars = [
 
 class ABB07Device:
 
-    def __init__(self, addr_str: str, timeout: float):
+    def __init__(self, addr_str: str, timeout: float, keep_connected: bool):
         self._command = bytes([0xCA, 0xFD, 0x00, 0x06, 0x09, 0xD6]) # default command to request all sensor data from charger
         self._rawdata = bytearray()
         self._sensordata = {}
         self._is_connected = False
         self._addr_str = addr_str
         self._timeout = timeout
+        self._keep_connected = keep_connected
 
     @property
     def addr_str(self):
@@ -34,6 +35,10 @@ class ABB07Device:
     @property
     def is_connected(self):
         return self._is_connected
+
+    @property
+    def keep_connected(self):
+        return self._keep_connected
 
     async def connect(self) -> bool:
         device = await BleakScanner().find_device_by_address(device_identifier=self.addr_str, timeout=self.timeout)
@@ -97,7 +102,7 @@ class ABB07Device:
                 await self.dev.stop_notify(self.read_char)
             await self.dev.disconnect()
             self._is_connected = False
-            logging.debug('Bluetooth disconnected')
+            logging.debug('Device disconnected')
 
     def handle_notify(self, handle: int, data: bytes):
         logging.debug(f'Received notify from {handle}: {data}')
@@ -105,14 +110,16 @@ class ABB07Device:
 
 
     def handle_disconnect(self, client: BleakClient):
-        logging.debug(f'Device {client.address} disconnected')
+        self._is_connected = False
+        logging.debug(f'Device {client.address} disconnect handled')
 
     async def get_sensor_data(self):
         logging.debug(f'Downloading sensor data')
         self._rawdata.clear()
-        await self.dev.write_gatt_char(self.write_char, self._command)
-        await asyncio.sleep(1)
-        await self.process_respons()
+        if self._is_connected:
+            await self.dev.write_gatt_char(self.write_char, self._command)
+            await asyncio.sleep(1)
+            await self.process_respons()
 
     async def process_respons(self):
         if len(self._rawdata) > 0:
