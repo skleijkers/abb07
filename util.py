@@ -41,7 +41,7 @@ class ABB07Data:
         data = self._abb07dev.sensordata
 
         if not self._abb07dev.keep_connected and self._abb07dev.is_connected:
-            self._abb07dev.disconnect()
+            await self._abb07dev.disconnect()
 
         return data
 
