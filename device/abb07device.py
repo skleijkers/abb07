@@ -65,8 +65,6 @@ class ABB07Device:
             return False
 
         await self.dev.start_notify(self.read_char, self.handle_notify)
-        # Do a first download of the sensor data
-        await self.get_sensor_data()
         return True
 
     def find_char(self, req_props: [str]) -> BleakGATTCharacteristic:
@@ -120,6 +118,11 @@ class ABB07Device:
             await self.dev.write_gatt_char(self.write_char, self._command)
             await asyncio.sleep(1)
             await self.process_respons()
+        else:
+            logging.warning(f'Device not connected')
+
+        if not self._keep_connected:
+            await self.disconnect()
 
     async def process_respons(self):
         if len(self._rawdata) > 0:
