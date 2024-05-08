@@ -6,7 +6,6 @@ This Home Assistant integration is only for readout and has been tested on the A
 
 ## Requirements
 
-- The bleak library, can be installed with "pip install bleak" (unfortunately the requirements don't work due to conflicting dependancies).
 - Bluetooth device set to passive scanning in Home Assistant.
 - Low power mode of the ABB-07 disabled, as the wake-up call isn't implemented.
 

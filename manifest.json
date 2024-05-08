@@ -3,5 +3,6 @@
   "name": "Ablemail ABB07 integration",
   "iot_class": "local_polling",
   "version": "0.1.0",
-  "codeowners": ["@skleijkers"]
+  "codeowners": ["@skleijkers"],
+  "requirements": ["dbus-fast>=1.83.0","typing_extensions>=4.7.0","bleak>=0.20.0"]
 }
