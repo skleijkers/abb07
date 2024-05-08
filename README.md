@@ -1,4 +1,4 @@
-# Implementation of the Ablemail ABB-07 as Home Assistant integration
+# Home Assistant integration of the Ablemail ABB-07
 
 The Ablemail ABB-07 (ABB07) is a serial to bluetooh device for communication with their chargers. See their website for the products compatible with the ABB-07 https://ablemail.co.uk/. They provide an app for IOS and Android for readout and adjusting settings.
 
@@ -12,7 +12,13 @@ This Home Assistant integration is only for readout and has been tested on the A
 
 ## Installation
 
-Git clone this repository in config/custom_components/abb07 and add the following lines to the configuration.yaml of Home Assistant:
+Open a terminal in Home Assistant and git clone this repository in ~/config/custom_components/abb07
+
+```bash
+git clone https://github.com/skleijkers/abb07 ~/config/custom_components/abb07
+```
+
+Add the following lines to the configuration.yaml of Home Assistant:
 
 ```bash
 abb07:
