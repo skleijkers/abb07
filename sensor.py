@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from homeassistant.const import UnitOfElectricPotential
+from homeassistant.const import UnitOfElectricPotential, UnitOfTemperature
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
@@ -26,6 +26,12 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         key="lov",
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         device_class=SensorDeviceClass.VOLTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key="mt",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
 )
