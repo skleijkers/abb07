@@ -3,6 +3,9 @@ import logging, asyncio
 from bleak import BleakClient, BleakScanner
 from bleak.backends.characteristic import BleakGATTCharacteristic
 from bleak.exc import BleakError
+from bleak.backends.device import BLEDevice
+
+_LOGGER = logging.getLogger(__name__)
 
 abb07_chars = [
     '0000ffe1-0000-1000-8000-00805f9b34fb'
@@ -11,22 +14,17 @@ abb07_chars = [
 
 class ABB07Device:
 
-    def __init__(self, addr_str: str, timeout: float, keep_connected: bool):
+    def __init__(self, addr_str: str, keep_connected: bool):
         self._command = bytes([0xCA, 0xFD, 0x00, 0x06, 0x09, 0xD6]) # default command to request all sensor data from charger
         self._rawdata = bytearray()
         self._sensordata = {}
         self._is_connected = False
         self._addr_str = addr_str
-        self._timeout = timeout
         self._keep_connected = keep_connected
 
     @property
     def addr_str(self):
-        return str(self._addr_str)
-
-    @property
-    def timeout(self):
-        return float(self._timeout)
+        return self._addr_str
 
     @property
     def sensordata(self):
@@ -41,27 +39,25 @@ class ABB07Device:
         return self._keep_connected
 
     async def connect(self) -> bool:
-        device = await BleakScanner().find_device_by_address(device_identifier=self.addr_str, timeout=self.timeout)
+        device = await BleakScanner().find_device_by_address(device_identifier=self.addr_str)
         if not device:
-            logging.eror(f'No matching device found!')
+            _LOGGER.error(f'Device {self.addr_str} not found.')
             return False
 
-        self.dev = BleakClient(device, disconnected_callback=self.handle_disconnect, timeout=self.timeout)
+        self.dev = BleakClient(device, disconnected_callback=self.handle_disconnect)
 
-        logging.debug(f'Trying to connect with {device}')
         await self.dev.connect()
         if self.dev.is_connected:
             self._is_connected = True
-            logging.debug(f'Device {self.dev.address} connected')
+            _LOGGER.debug(f'Device {self.dev.address} connected')
         else:
-            logging.error(f'Could not connect to {self.dev.address}')
+            _LOGGER.error(f'Could not connect to {self.dev.address}')
             return False
 
-        logging.debug(f'Setting up chars')
         self.write_char = self.find_char(['write', 'write-without-response'])
         self.read_char = self.find_char(['notify', 'indicate'])
         if not self.write_char or not self.read_char:
-            logging.error(f'Could not setup chars')
+            _LOGGER.error(f'Could not setup chars of device {self.dev.address}')
             return False
 
         await self.dev.start_notify(self.read_char, self.handle_notify)
@@ -78,7 +74,7 @@ class ABB07Device:
                     results.append(c)
 
         res_str = '\n'.join(f'\t{c} {c.properties}' for c in results)
-        logging.debug(f'Characteristic candidates for {name}: \n{res_str}')
+        _LOGGER.debug(f'Characteristic candidates for {name}: \n{res_str}')
 
         # Check if there is a intersection of permission flags
         results[:] = [c for c in results if set(c.properties) & set(req_props)]
@@ -91,7 +87,7 @@ class ABB07Device:
 
         # must be valid here
         found = results[0]
-        logging.debug(f'Found {name} characteristic {found.uuid} (H. {found.handle})')
+        _LOGGER.debug(f'Found {name} characteristic {found.uuid} (H. {found.handle})')
         return found
 
     async def disconnect(self):
@@ -100,26 +96,26 @@ class ABB07Device:
                 await self.dev.stop_notify(self.read_char)
             await self.dev.disconnect()
             self._is_connected = False
-            logging.debug('Device disconnected')
+            _LOGGER.debug(f'Device {self.addr_str} disconnected')
 
     def handle_notify(self, handle: int, data: bytes):
-        logging.debug(f'Received notify from {handle}: {data}')
+        _LOGGER.debug(f'Received notify from {handle}: {data}')
         self._rawdata.extend(data)
 
 
     def handle_disconnect(self, client: BleakClient):
         self._is_connected = False
-        logging.debug(f'Device {client.address} disconnect handled')
+        _LOGGER.debug(f'Device {client.address} disconnect handled')
 
     async def get_sensor_data(self):
-        logging.debug(f'Downloading sensor data')
+        _LOGGER.debug(f'Downloading sensor data')
         self._rawdata.clear()
         if self._is_connected:
             await self.dev.write_gatt_char(self.write_char, self._command)
             await asyncio.sleep(1)
             await self.process_respons()
         else:
-            logging.warning(f'Device not connected')
+            _LOGGER.warning(f'Device not connected')
 
         if not self._keep_connected:
             await self.disconnect()
@@ -137,7 +133,7 @@ class ABB07Device:
                     checksum = checksum & 0xFF
                     if checksum == int.from_bytes(self._rawdata[46:47]):
                         # data is ok, proceed with extracting values
-                        logging.debug(f'Received: {self._rawdata.hex()}')
+                        _LOGGER.debug(f'Received: {self._rawdata.hex()}')
                         liv = float(int.from_bytes(self._rawdata[5:7], byteorder='big') * 0.0354838709677419)
                         riv = float(int.from_bytes(self._rawdata[7:9], byteorder='big') * 0.0354838709677419)
                         lov = float(int.from_bytes(self._rawdata[9:11], byteorder='big') * 0.0354838709677419)
@@ -176,12 +172,12 @@ class ABB07Device:
                             "deviceuptime":deviceuptime
                          }
                         self._sensordata = dataobject
-                        logging.debug(self.sensordata)
+                        _LOGGER.debug(self.sensordata)
                     else:
-                        logging.error(f'Incorrect checksum')
+                        _LOGGER.error(f'Incorrect checksum')
                 else:
-                    logging.error(f'Incorrect message length')
+                    _LOGGER.error(f'Incorrect message length')
             else:
-                logging.error(f'Respons doesn\'t contain magic header')
+                _LOGGER.error(f'Respons doesn\'t contain magic header')
         else:
-            logging.error(f'No data received')
+            _LOGGER.error(f'No data received')

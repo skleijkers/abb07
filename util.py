@@ -1,4 +1,4 @@
-import logging, asyncio
+import asyncio
 
 from datetime import datetime, timedelta
 from homeassistant.core import CALLBACK_TYPE, callback
@@ -34,7 +34,6 @@ class ABB07Data:
     async def _async_update(self):
         if not self._abb07dev.is_connected:
             if not await self._abb07dev.connect():
-                logging.error(f'Could not connect to ABB07')
                 return {}
 
         await self._abb07dev.get_sensor_data()

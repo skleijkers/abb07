@@ -39,7 +39,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     if DOMAIN not in config:
         return False
 
-    abb07dev = ABB07Device(device, 10.0, keep_connected)
+    abb07dev = ABB07Device(device, keep_connected)
     hass.data[DOMAIN] = abb07dev
 
     hass.async_create_task(async_load_platform(hass, Platform.SENSOR, DOMAIN, {}, config))
