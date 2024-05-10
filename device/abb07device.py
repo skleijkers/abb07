@@ -76,11 +76,9 @@ class ABB07Device:
         # Check if there is a intersection of permission flags
         results[:] = [c for c in results if set(c.properties) & set(req_props)]
 
-        assert len(results) > 0, \
-            _LOGGER.error(f'No characteristic with {req_props} property found!')
-
-        assert len(results) == 1, \
-            _LOGGER.error(f'Multiple matching {name} characteristics found, please specify one')
+        if len(results) != 1:
+            _LOGGER.error(f'Couldn\'t find the correct characteristic')
+            return None
 
         # must be valid here
         found = results[0]
