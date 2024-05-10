@@ -27,9 +27,7 @@ class ABB07Data:
     @callback
     def async_schedule_update(self, minute=1):
         nxt = dt_util.utcnow() + timedelta(minutes=minute)
-        self.unsub_schedule_update = async_track_point_in_utc_time(
-            self.hass, self.async_update, nxt
-        )
+        self.unsub_schedule_update = async_track_point_in_utc_time(self.hass, self.async_update, nxt)
 
     async def _async_update(self):
         if not self._abb07dev.is_connected:

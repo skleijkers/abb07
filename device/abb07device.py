@@ -1,4 +1,5 @@
 import logging, asyncio
+from typing import List
 
 from bleak import BleakClient, BleakScanner
 from bleak.backends.characteristic import BleakGATTCharacteristic
@@ -61,20 +62,15 @@ class ABB07Device:
         await self.dev.start_notify(self.read_char, self.handle_notify)
         return True
 
-    def find_char(self, req_props: [str]) -> BleakGATTCharacteristic:
-        name = req_props[0]
-
+    def find_char(self, req_props: List[str]) -> BleakGATTCharacteristic:
         results = []
-        for srv in self.dev.services:
-            for c in srv.characteristics:
-                if c.uuid == ABB07_CHAR_UUID:
-                    results.append(c)
+        for service in self.dev.services:
+            for char in service.characteristics:
+                if char.uuid == ABB07_CHAR_UUID:
+                    results.append(char)
 
-        res_str = '\n'.join(f'\t{c} {c.properties}' for c in results)
-        _LOGGER.debug(f'Characteristic candidates for {name}: \n{res_str}')
-
-        # Check if there is a intersection of permission flags
-        results[:] = [c for c in results if set(c.properties) & set(req_props)]
+        # Check if there is a intersection of permission flags and put char back in results if it does
+        results[:] = [char for char in results if set(char.properties) & set(req_props)]
 
         if len(results) != 1:
             _LOGGER.error(f'Couldn\'t find the correct characteristic')
@@ -82,7 +78,7 @@ class ABB07Device:
 
         # must be valid here
         found = results[0]
-        _LOGGER.debug(f'Found {name} characteristic {found.uuid} (H. {found.handle})')
+        _LOGGER.debug(f'Found {req_props[0]} characteristic {found.uuid} (H. {found.handle})')
         return found
 
     async def disconnect(self):
@@ -96,7 +92,6 @@ class ABB07Device:
     def handle_notify(self, handle: int, data: bytes):
         _LOGGER.debug(f'Received notify from {handle}: {data}')
         self._rawdata.extend(data)
-
 
     def handle_disconnect(self, client: BleakClient):
         self._is_connected = False
