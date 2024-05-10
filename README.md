@@ -54,6 +54,6 @@ Be aware: after changing the mode / setting of the ABB-07, the device settings a
 
 Default the keep_connected option is set to False, thus opening and closing the connection to the ABB-07 on every request for sensor data. In this mode it's possible to use the app alongside the integration as it is not possible to have two open connections to the ABB-07.
 
-While the app has the connection open to the ABB-07, the integration will not be able to connect to the ABB-07 and the the reading(s) will be skipped. After disconnecting the app, the integration will be able to connect again and continue with the readings.
+While the app has the connection open to the ABB-07, the integration will not be able to connect to the ABB-07 and the reading(s) will be skipped. After disconnecting the app, the integration will be able to connect again and continue with the readings.
 
 Setting the keep_connected option to True gives the integration exclusive access to the ABB-07 and no readings will be missed. Default every 1 minute the integration will try a reading and update the Entities in Home Assistant.
