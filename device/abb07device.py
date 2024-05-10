@@ -7,9 +7,7 @@ from bleak.backends.device import BLEDevice
 
 _LOGGER = logging.getLogger(__name__)
 
-abb07_chars = [
-    '0000ffe1-0000-1000-8000-00805f9b34fb'
-]
+ABB07_CHAR_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb' # The ABB-07 uses this char for all needed services (write and notify)
 
 
 class ABB07Device:
@@ -66,11 +64,10 @@ class ABB07Device:
     def find_char(self, req_props: [str]) -> BleakGATTCharacteristic:
         name = req_props[0]
 
-        uuid_candidates = abb07_chars
         results = []
         for srv in self.dev.services:
             for c in srv.characteristics:
-                if c.uuid in uuid_candidates:
+                if c.uuid == ABB07_CHAR_UUID:
                     results.append(c)
 
         res_str = '\n'.join(f'\t{c} {c.properties}' for c in results)
@@ -80,10 +77,10 @@ class ABB07Device:
         results[:] = [c for c in results if set(c.properties) & set(req_props)]
 
         assert len(results) > 0, \
-            f"No characteristic with {req_props} property found!"
+            _LOGGER.error(f'No characteristic with {req_props} property found!')
 
         assert len(results) == 1, \
-            f'Multiple matching {name} characteristics found, please specify one'
+            _LOGGER.error(f'Multiple matching {name} characteristics found, please specify one')
 
         # must be valid here
         found = results[0]
