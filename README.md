@@ -57,8 +57,8 @@ abb07:
 - Go to Device Settings and change the Low Power mode to Disabled.
 - Send the settings to the device.
 
-[!WARNING]
-After changing the mode setting of the charger, the device settings are reset to the default and the Low Power mode is enabled again. 
+> [!WARNING]
+> After changing the mode setting of the charger, the device settings are reset to the default and the Low Power mode is enabled again. 
 
 ## Documentation
 
