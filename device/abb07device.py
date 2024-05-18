@@ -38,7 +38,7 @@ class ABB07Device:
         return self._keep_connected
 
     async def connect(self) -> bool:
-        device = await BleakScanner.find_device_by_address(device_identifier=self.addr_str)
+        device = await BleakScanner().find_device_by_address(device_identifier=self.addr_str)
         if not device:
             _LOGGER.error(f'Device {self.addr_str} not found.')
             return False

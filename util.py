@@ -33,7 +33,8 @@ class ABB07Data:
         data = {}
         if not self._abb07dev.is_connected:
             if await self._abb07dev.connect():
-                data = await self._abb07dev.get_sensor_data()
+                await self._abb07dev.get_sensor_data()
+                data = self._abb07dev.sensordata
 
         if data:
             self.data = data
