@@ -29,16 +29,12 @@ class ABB07Data:
         nxt = dt_util.utcnow() + timedelta(minutes=minute)
         self.unsub_schedule_update = async_track_point_in_utc_time(self.hass, self.async_update, nxt)
 
-    async def _async_update(self):
-        if not self._abb07dev.is_connected:
-            if not await self._abb07dev.connect():
-                return {}
-
-        await self._abb07dev.get_sensor_data()
-        return self._abb07dev.sensordata
-
     async def async_update(self, *_):
-        data = await self._async_update()
+        data = {}
+        if not self._abb07dev.is_connected:
+            if await self._abb07dev.connect():
+                data = await self._abb07dev.get_sensor_data()
+
         if data:
             self.data = data
             await self.update_devices()
