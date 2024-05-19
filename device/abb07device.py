@@ -98,16 +98,17 @@ class ABB07Device:
         _LOGGER.debug(f'Device {client.address} disconnect handled')
 
     async def get_sensor_data(self):
-        _LOGGER.debug(f'Downloading sensor data')
-        self._rawdata.clear()
-        if self._is_connected:
-            await self.dev.write_gatt_char(self.write_char, self._command)
-            await asyncio.sleep(1)
-            await self.process_respons()
-        else:
-            _LOGGER.warning(f'Device not connected')
+        if not self.is_connected:
+            if await self.connect():
+                _LOGGER.debug(f'Downloading sensor data')
+                self._rawdata.clear()
+                await self.dev.write_gatt_char(self.write_char, self._command)
+                await asyncio.sleep(1)
+                await self.process_respons()
+            else:
+                _LOGGER.warning(f'Device not connected')
 
-        if not self._keep_connected:
+        if not self._keep_connected and self.is_connected:
             await self.disconnect()
 
     async def process_respons(self):

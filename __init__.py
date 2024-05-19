@@ -36,9 +36,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     device = conf.get(CONF_DEVICE)
     keep_connected = conf.get(CONF_KEEP_CONNECTED)
 
-    if DOMAIN not in config:
-        return False
-
     abb07dev = ABB07Device(device, keep_connected)
     hass.data[DOMAIN] = abb07dev
 

@@ -31,10 +31,8 @@ class ABB07Data:
 
     async def async_update(self, *_):
         data = {}
-        if not self._abb07dev.is_connected:
-            if await self._abb07dev.connect():
-                await self._abb07dev.get_sensor_data()
-                data = self._abb07dev.sensordata
+        await self._abb07dev.get_sensor_data()
+        data = self._abb07dev.sensordata
 
         if data:
             self.data = data
